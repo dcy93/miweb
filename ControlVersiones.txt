@@ -1,0 +1,12 @@
+    /*** ========== v1.1 ========== v20250627a1344
+     * Se han reordenado las variables <String> productAvailable, productNameSelected, priceProductSelected - <WebElement> randomItem
+     * Se han reordenado las variables <By> productNameSelectedBy, priceProductSelectedBy
+     * Se ha agregado la variable <int> contador - <boolean> flagProductWithoutStock, allItem;
+     * Se agrega el 'if' para determinar si elige el primer producto, o entrará a buscar un producto con Stock (en conjunto con el 'While')
+     * Se han reorganizado las impresiones en consola
+     * Se agrega una bandera, para determinar si elige el 1er producto que encuentre, o selecciona un producto con inventario disponible
+     * Se agregan las variable <String> productNameExpected, priceProductExpected, a fin de evitar un error en el assertion
+     */
+
+     
+
