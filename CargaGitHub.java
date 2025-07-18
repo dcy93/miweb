@@ -6,27 +6,32 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.support.ui.*;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.Wait;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
-// Versión actual: v1.1
+// Versión actual: v1.2
 public class CargaGitHub {
+
     // Variables del navegador
     WebDriver driver;
     Wait wait;
-    String navegador = "Chrome"; // Aplica sólo Chrome, Firefox o Edge
+    String navegador = "Chrome"; // Todo: Aplica sólo Chrome, Firefox o Edge
     Point point;
 
-    // Variable del test 'practicaPersonalizada01'
+    // Variable del test 'automationPracticeWithThreads'
     boolean allItem = true; // Todo: v1.1
     // Todo: Establecer 'true' permite seleccionar un producto que cuente con Stock (hasta que se lo permita)
     // Todo: Establecer 'false' permite seleccionar el primer producto que se encuentre, incluyendo si no tiene inventario.
 
-    // Variables para gestionar el tiempo
-    int generalTime = 2 * 1000;
-    int extendTime = 3 * 1000;
+    // Variables para gestionar el tiempo // Eliminar en la siguiente versión. Todo: v1.2
+    // int generalTime = 2 * 1000; // Eliminar en la siguiente versión. Todo: v1.2
+    // int extendTime = 3 * 1000; // Eliminar en la siguiente versión. Todo: v1.2
 
     @BeforeEach
     public void initConfigurationTest() {
@@ -64,15 +69,16 @@ public class CargaGitHub {
     @Test
     public void practicaPersonalizada01() throws InterruptedException {
         System.out.println("=================================");
-        System.out.println("Iniciando 'prácticaPersonalizada01'.");
+        System.out.println("Iniciando 'automationPractice'.");
         System.out.println("<------------------------------->");
         JavascriptExecutor js = (JavascriptExecutor) driver;
-        //Thread.sleep(10000);
 
+        // =====----- Home -----=====
         driver.get("http://www.automationpractice.pl/index.php");
         driver.findElement(By.cssSelector("input#search_query_top")).sendKeys("Dress");
         driver.findElement(By.cssSelector("button[name='submit_search']")).click();
 
+        // =====----- Resultados -----=====
         wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span.heading-counter")));
 
         List<WebElement> totalResult = driver.findElements(
@@ -103,7 +109,6 @@ public class CargaGitHub {
         if (allItem) { // True = Busca y encuentra un producto con Stock -- False = Selecciona el primer producto que encuentre // Todo: v1.1
             while (flagProductWithoutStock) {  // Todo: v1.1
                 System.out.println("============================");
-                Thread.sleep(generalTime);
                 randomItem = totalResult.get(rand.nextInt(totalResult.size()));
                 productAvailable = randomItem.findElement(By.cssSelector("span[class='availability'] span")).getText();
                 productNameSelected = randomItem.findElement(productNameSelectedBy).getText();
@@ -143,10 +148,10 @@ public class CargaGitHub {
 
         point = randomItem.getLocation();
         js.executeScript("scrollBy(" + point.getX()  + ", " + point.getY() + ")");
-        Thread.sleep(generalTime);
 
         randomItem.findElement(productNameSelectedBy).click();
 
+        //=====----- Detail Item -----=====
         By itemSelectedNameBy = By.xpath("//div[@class='pb-center-column col-xs-12 col-sm-4']/h1");
         wait.until(ExpectedConditions.presenceOfElementLocated(itemSelectedNameBy));
 
@@ -167,11 +172,12 @@ public class CargaGitHub {
         List<WebElement> listColorAvailable = driver.findElements(By.cssSelector("ul#color_to_pick_list li a"));
         int sizeSelected = 1;
         contador = 1;
-        boolean bandera1 = true, submitButtonDisplay = false;
+        boolean bandera1 = true, submitButtonDisplay;
 
         //Localizadores
         By byAddToCartButton = By.xpath("//p[@id='add_to_cart']");
 
+        // Selección de la talla
         while (bandera1) {
             selectSize.selectByValue(String.valueOf(sizeSelected));
             System.out.print("Opción de talla seleccionada: " + sizeSelected + " ----- ");
@@ -182,17 +188,19 @@ public class CargaGitHub {
             }
             System.out.println("============================");
 
+            // Selección del color, acorde a la talla
             for (WebElement selectColor : listColorAvailable) {
                 selectColor.click();
-                Thread.sleep(generalTime);
+                submitButtonDisplay = driver.findElement(byAddToCartButton).isDisplayed(); // Todo: v1.2
+                driver.manage().timeouts().implicitlyWait(2L, TimeUnit.SECONDS);  // Todo: v1.2
+                // Thread.sleep(generalTime); // Todo: v1.2
                 System.out.println("Color elegido: " + selectColor.getAttribute("title"));
-                submitButtonDisplay = driver.findElement(byAddToCartButton).isDisplayed();
                 if (submitButtonDisplay) {
                     bandera1 = false;
                     driver.findElement(byAddToCartButton).click();
                     System.out.println("Se ha seleccionado un producto, para el carrito.");
                     System.out.println("============================");
-                    Thread.sleep(generalTime);
+                    //Thread.sleep(generalTime); // Eliminar en la siguiente versión. Todo v1.2
                     break;
                 } else {
                     System.out.println("Intento " + contador + ". No se ha encontrado disponibilidad del artículo en la talla y color seleccionado.");
@@ -203,9 +211,10 @@ public class CargaGitHub {
 
             if (bandera1 == false) {
                 break;
-            } else {
+            } /* else {
                 bandera1 = true;
-            }
+            } // Se procederá a eliminar esta parte del código, debido a que es redundante. Todo: v1.2
+             ***/
 
             if (sizeSelected == 3) {
                 Assertions.assertTrue(false, "Producto no cuenta con inventario disponible...");
@@ -213,50 +222,49 @@ public class CargaGitHub {
             }
 
             sizeSelected++;
-            Thread.sleep(generalTime);
+            //Thread.sleep(generalTime); // Eliminar en la siguiente versión. Todo: v1.2
         }
 
         By buttonProceedToCheckoutBy = By.xpath("//a[@class='btn btn-default button button-medium']");
         wait.until(ExpectedConditions.presenceOfElementLocated(buttonProceedToCheckoutBy));
-
         driver.findElement(buttonProceedToCheckoutBy).click();
 
-        Thread.sleep(generalTime);
+        // Thread.sleep(generalTime); // Eliminar en la siguiente versión. Todo: v1.2
 
-        // Shopping-cart Summary
+        //=====----- Shopping-cart Summary -----=====
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span.heading-counter"))); // Todo: v1.2
         point = driver.findElement(By.xpath("//ul[@class='sf-menu clearfix menu-content sf-js-enabled sf-arrows']")).getLocation();
         js.executeScript("scrollBy(0, " + point.getY() + ")");
         String string_ProductShoppingCartSummary = driver.findElement(By.xpath("//td[@id='total_product']")).getText();
         String string_ShippingShoppingCartSummary = driver.findElement(By.xpath("//td[@id='total_shipping']")).getText();
         String string_TotalShoppingCartSummary = driver.findElement(By.xpath("//span[@id='total_price']")).getText();
-
         driver.findElement(By.xpath("//p[@class='cart_navigation clearfix']/a[@title='Proceed to checkout']")).click();
+        //Thread.sleep(generalTime); // Eliminar en la siguiente versión. Todo: v1.2
 
-        Thread.sleep(generalTime);
-
-        // Login
+        //=====----- Authentication -----=====
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("h1.page-heading"))); // Todo: v1.2
         js.executeScript("scrollBy(0, 400)");
         driver.findElement(By.id("email")).sendKeys("diegoyip93@gmail.com");
         driver.findElement(By.name("passwd")).sendKeys("abcd1234");
         driver.findElement(By.xpath("//button[@class='button btn btn-default button-medium']")).click();
-
-        Thread.sleep(generalTime);
-
+        //Thread.sleep(generalTime); // Eliminar en la siguiente versión. Todo: v1.2
         point = driver.findElement(By.cssSelector("a[title='Return to Home']")).getLocation();
         js.executeScript("scrollBy(0, " + point.getY() + ")");
 
-        // Addresses
-        Thread.sleep(generalTime);
+        //=====----- Addresses -----=====
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div[class='address_delivery select form-group selector1']"))); // Todo: v1.2
+        // Thread.sleep(generalTime); // Eliminar en la siguiente versión. Todo: v1.2
         point = driver.findElement(By.xpath("//p[@class='address_add submit']/a")).getLocation();
         js.executeScript("scrollBy(0, " + point.getY() + ")");
         driver.findElement(By.name("processAddress")).click();
-        Thread.sleep(generalTime);
+        // Thread.sleep(generalTime); // Eliminar en la siguiente versión. Todo: v1.2
 
-        // Shipping
+        //=====----- Shipping -----=====
         // --- Seleccionamos "Read the Terms of Services" (No existe la página)
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("p.carrier_title"))); // Todo: v1.2
         String string_ShippingShipping = driver.findElement(By.xpath("//div[@class='delivery_option_price']")).getText();
         driver.findElement(By.xpath("//p[@class='checkbox']/a")).click();
-        Thread.sleep(generalTime+extendTime);
+        // Thread.sleep(generalTime+extendTime); // Eliminar en la siguiente versión. Todo: v1.2
 
         // ------- Interactuando con el iFrame
         By frameReadTermsServiceBy = By.cssSelector("iframe[class='fancybox-iframe']");
@@ -274,21 +282,23 @@ public class CargaGitHub {
         // --- Seleccionamos el Checkbox
         driver.findElement(By.id("cgv")).click();
         driver.findElement(By.xpath("//button[@name='processCarrier']")).click();
-        Thread.sleep(generalTime);
+        // Thread.sleep(generalTime); // Eliminar en la siguiente versión. Todo: v1.2
 
-        // Please Choose your payment method
+        //=====----- Please Choose your payment method -----=====
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("p.payment_module")));
         String string_ProductPleaseChoosePaymentMethod = driver.findElement(By.xpath("//td[@id='total_product']")).getText();
         String string_ShippingPleaseChoosePaymentMethod = driver.findElement(By.xpath("//td[@id='total_shipping']")).getText();
         String string_TotalPleaseChoosePaymentMethod = driver.findElement(By.xpath("//span[@id='total_price']")).getText();
         driver.findElement(By.xpath("//a[@class='bankwire']")).click();
-        Thread.sleep(generalTime);
+        // Thread.sleep(generalTime); // Eliminar en la siguiente versión. Todo: v1.2
 
-        // Order Summary
+        //=====----- Order Summary -----=====
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("p.cheque-indent")));
         String string_TotalOrderSummary = driver.findElement(By.xpath("//span[@id='amount']")).getText();
         driver.findElement(By.cssSelector("button[class='button btn btn-default button-medium']")).click();
-        Thread.sleep(generalTime);
+        // Thread.sleep(generalTime); // Eliminar en la siguiente versión. Todo: v1.2
 
-        // Order confirmation
+        //=====----- Order confirmation -----=====
         By orderCompleteBy = By.xpath("//p[@class='alert alert-success']");
         wait.until(ExpectedConditions.presenceOfElementLocated(orderCompleteBy));
 
@@ -296,7 +306,7 @@ public class CargaGitHub {
         js.executeScript("scrollBy(0, " + point.getY() + ")");
 
         String string_TotalOrderComplete = driver.findElement(By.xpath("//span[@class='price']")).getText();
-        Thread.sleep(generalTime);
+        // Thread.sleep(generalTime); // Eliminar en la siguiente versión. Todo: v1.2
 
         Assertions.assertAll(
                 // Product
@@ -323,7 +333,7 @@ public class CargaGitHub {
         System.out.println("Mensaje final: " + driver.findElement(By.xpath("//p[@class='alert alert-success']")).getText());
 
         System.out.println("<------------------------------->");
-        System.out.println("Finalizando 'practicaPersonalizada01'.");
+        System.out.println("Finalizando 'automationPractice'.");
         System.out.println("=================================");
     }
 }

@@ -8,5 +8,10 @@
      * Se agregan las variable <String> productNameExpected, priceProductExpected, a fin de evitar un error en el assertion
      */
 
-     
-
+    /*** ========== v1.2 ========== v20250718a1748
+     * Sustitución del "Thread.sleep" por esperas explícitas/implícitas (en casos requeridos)
+     * Eliminación de los "Thread.sleep"
+     * Reducción de código redundante
+     * Eliminación del "throws InterruptedException", debido a que ya no se requiere su uso.
+     * Se eliminan las variables "generalTime" y "extendTime", debido a que ya no se requiere su uso.
+     */
