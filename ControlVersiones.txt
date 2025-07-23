@@ -15,3 +15,8 @@
      * Eliminación del "throws InterruptedException", debido a que ya no se requiere su uso.
      * Se eliminan las variables "generalTime" y "extendTime", debido a que ya no se requiere su uso.
      */
+
+    /*** ========== v2.0 ========== v202507231731
+     * Se ha creado la versión 2.0 Trae la reprogramación, para enfocarlo a la programación orientada a objetos. 
+     * También se ha modificado el código, eliminando más código redundante.
+     */
