@@ -1,0 +1,28 @@
+package com.automationPractice.Pages;
+
+import com.automationPractice.tools.CentralDriver;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Point;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Wait;
+
+public class OrderConfirmation extends CentralDriver {
+
+    String amount;
+
+    public OrderConfirmation (WebDriver driver, Wait wait, Point point, JavascriptExecutor js) {
+        super(driver, wait, point, js);
+    }
+
+    public void orderConfirmationStep () {
+        By orderCompleteBy = By.xpath("//p[@class='alert alert-success']");
+        wait.until(ExpectedConditions.presenceOfElementLocated(orderCompleteBy));
+        point = driver.findElement(By.xpath("//div[@class='breadcrumb clearfix']")).getLocation();
+        js.executeScript("scrollBy(0, " + point.getY() + ")");
+        amount = driver.findElement(By.xpath("//span[@class='price']")).getText();
+    }
+
+    public String getAmount () { return amount; }
+}

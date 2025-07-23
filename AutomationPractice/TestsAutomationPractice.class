@@ -1,0 +1,165 @@
+package com.automationPractice;
+
+import com.automationPractice.Pages.*;
+import org.junit.jupiter.api.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Point;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Wait;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+public class TestsAutomationPracticeWithObjects {
+
+    // =====----- Establecer valores para la ejecución -----=====
+    // Variable global
+    String navegador = "Chrome"; // Aplica sólo Chrome, Firefox o Edge
+
+    // Variable del test 'automationPracticeWithObjects'
+    String itemToFind = "T-shirt"; // Dress para 7 items, T-Shirt para 1 item sin Stock, Blouse para 1 item con Stock
+    boolean allItem = false; // Todo: v1.1
+    // Todo: Establecer 'true' permite seleccionar un producto que cuente con Stock (hasta que se lo permita)
+    // Todo: Establecer 'false' permite seleccionar el primer producto que se encuentre, incluyendo si no tiene stock.
+
+    // === No modificar ===
+    WebDriver driver;
+    Wait wait;
+    Point point;
+    JavascriptExecutor js;
+
+    @BeforeEach
+    public void initConfigurationTest() {
+        switch (navegador.toUpperCase()) {
+            case "CHROME":
+                System.setProperty("webdriver.chrome.driver",
+                        "C:\\Users\\notebook -anla\\IdeaProjects\\PracticandoAutomatizacion001\\src\\test\\resources\\chromedriver.exe");
+                driver = new ChromeDriver();
+                break;
+            case "FIREFOX":
+                System.setProperty("webdriver.gecko.driver",
+                        "C:\\Users\\notebook -anla\\IdeaProjects\\PracticandoAutomatizacion001\\src\\test\\resources\\geckodriver.exe");
+                driver = new FirefoxDriver();
+                break;
+            case "EDGE":
+                System.setProperty("webdriver.edge.driver",
+                        "C:\\Users\\notebook -anla\\IdeaProjects\\PracticandoAutomatizacion001\\src\\test\\resources\\msedgedriver.exe");
+                driver = new EdgeDriver();
+                break;
+            default:
+                System.out.println("Navegador no válido");
+                Assertions.assertTrue(false);
+                break;
+        }
+        wait = new WebDriverWait(driver, 5L);
+        js = (JavascriptExecutor) driver;
+        driver.manage().window().maximize();
+    }
+
+    @AfterEach
+    public void closeNav() {
+        driver.quit();
+    }
+
+    @Test
+    public void automationPracticeWithObjects () {
+        // =====----- Objetos requeridos para este test
+        driver.get("http://www.automationpractice.pl/index.php");
+        HomePage homePage = new HomePage(driver, wait);
+        ResultPage resultPage = new ResultPage(driver, wait, js);
+
+        System.out.println("=================================");
+        System.out.println("Iniciando 'automationPracticeWithObjects'.");
+        System.out.println("<------------------------------->");
+        homePage.findItem(itemToFind);
+
+        resultPage.assertionTotalItemFound();
+        resultPage.selectAnItem(allItem);
+        String expectedNameProduct_RP = resultPage.getProductNameExpected(), expectedPriceProduct_RP = resultPage.getPriceProductExpected();
+
+        DetailItemPage detailItemPage = new DetailItemPage(driver, wait);
+        detailItemPage.assertionNameProductSelected(expectedNameProduct_RP, expectedPriceProduct_RP);
+        detailItemPage.selectAnItem();
+        detailItemPage.addItemToCart();
+
+        Assertions.assertAll(
+                () -> Assertions.assertEquals(resultPage.getProductNameExpected(), detailItemPage.getItemSelectedName(),
+                        "El nombre del producto no coincide."),
+                () -> Assertions.assertEquals(resultPage.getPriceProductExpected(), detailItemPage.getItemSelectedPrice(),
+                        "El precio del producto no coincide.")
+        );
+
+        ShoppingCartPage shoppingCartPage = new ShoppingCartPage(driver, wait, point, js);
+        shoppingCartPage.shoppingCartStep(false);
+
+        Assertions.assertAll(
+                () -> Assertions.assertEquals(detailItemPage.getItemSelectedName(), shoppingCartPage.getDescriptionItem(),
+                        "El nombre del producto no coincide."),
+                () -> Assertions.assertEquals(detailItemPage.getItemSelectedPrice(), shoppingCartPage.getPriceItem(),
+                        "El precio del producto no coincide."),
+                () -> Assertions.assertEquals(shoppingCartPage.getPriceItem(), shoppingCartPage.getTotalProductsCartSummary(),
+                        "El monto no coincide con el precio del producto.")
+        );
+
+        AuthenticationPage authentication = new AuthenticationPage(driver, wait,point, js);
+        authentication.authenticationProcess();
+
+        AddressesPage addressesPage = new AddressesPage(driver, wait, point, js);
+        addressesPage.AddressesWithoutUpdate();
+
+        ShippingPage shippingPage = new ShippingPage(driver, wait, point, js);
+        shippingPage.ShippingPageStep();
+
+        Assertions.assertEquals(shoppingCartPage.getTotalShippingCartSummary(), shippingPage.getTotalShipping(),
+                "El precio del envío no coincide. Validación entre las páginas 'Shopping Cart' y 'Shipping'");
+
+        PaymentMethodPage paymentMethodPage = new PaymentMethodPage(driver, wait, point, js);
+        paymentMethodPage.chooseYourPaymentMethod();
+
+        Assertions.assertAll(
+                () -> Assertions.assertEquals(shoppingCartPage.getTotalProductsCartSummary(), paymentMethodPage.getTotalProduct(),
+                        "El total de productos de las páginas 'Shopping Cart' y 'Payment Method' no corresponden entre si."),
+                () -> Assertions.assertEquals(shoppingCartPage.getTotalShippingCartSummary(), paymentMethodPage.getTotalShipping(),
+                        "El total de envío de las páginas 'Shopping Cart' y 'Payment Method' no corresponden entre si."),
+                () -> Assertions.assertEquals(shoppingCartPage.getTotalAllItemsCartSummary(), paymentMethodPage.getTotalAllItemsCartSummary(),
+                        "El total de las páginas 'Shopping Cart' y 'Payment Method' no corresponden entre si.")
+        );
+
+        PaymentOrder paymentOrder = new PaymentOrder(driver, wait, point, js);
+        paymentOrder.confirmOrderSummary();
+
+        Assertions.assertEquals(paymentMethodPage.getTotalAllItemsCartSummary(), paymentOrder.getTotalOrderSummary(),
+                "El total de las páginas 'Payment Method' y 'Payment' no coinciden.");
+
+        OrderConfirmation orderConfirmation = new OrderConfirmation(driver, wait, point, js);
+        orderConfirmation.orderConfirmationStep();
+
+        Assertions.assertEquals(paymentOrder.getTotalOrderSummary(), orderConfirmation.getAmount(),
+                "El total de las páginas 'Payment Method' y 'Payment' no coinciden.");
+    }
+
+    @Test
+    public void testAuthentication () {
+        driver.get("http://www.automationpractice.pl/index.php");
+        HomePage homePage = new HomePage(driver, wait);
+        homePage.singIn();
+
+        AuthenticationPage authenticationPage = new AuthenticationPage(driver, wait, point, js);
+        authenticationPage.authenticationProcess();
+
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//h1[@class='page-heading']")));
+        Assertions.assertAll(
+                () -> Assertions.assertTrue(driver.findElement(By.xpath("//a[@title='Orders']")).isDisplayed(),
+                        "El botón 'Order History and Details' no se muestra."),
+                () -> Assertions.assertTrue(driver.findElement(By.xpath("//a[@title='Credit slips']")).isDisplayed(),
+                        "El botón 'My Credit Slips' no se muestra."),
+                () -> Assertions.assertTrue(driver.findElement(By.xpath("//a[@title='Addresses']")).isDisplayed(),
+                        "El botón 'My Addresses' no se muestra."),
+                () -> Assertions.assertTrue(driver.findElement(By.xpath("//a[@title='Information']")).isDisplayed(),
+                        "El botón 'My Personal Information' no se muestra.")
+        );
+    }
+}

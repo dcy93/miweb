@@ -1,0 +1,34 @@
+package com.automationPractice.tools;
+
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Point;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.Wait;
+
+public class CentralDriver {
+    protected WebDriver driver;
+    protected Wait wait;
+    protected Point point;
+    protected JavascriptExecutor js;
+
+    public CentralDriver (WebDriver driver, Wait wait, Point point, JavascriptExecutor js) {
+        this.driver = driver;
+        this.wait = wait;
+        this.point = point;
+        this.js = js;
+    }
+
+    public CentralDriver (WebDriver driver, Wait wait, JavascriptExecutor js) {
+        this.driver = driver;
+        this.wait = wait;
+        this.js = js;
+    }
+
+    public CentralDriver (WebDriver driver, Wait wait) {
+        this.driver = driver;
+        this.wait = wait;
+    }
+
+    public CentralDriver () {
+    }
+}

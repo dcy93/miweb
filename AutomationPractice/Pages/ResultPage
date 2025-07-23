@@ -1,0 +1,111 @@
+package com.automationPractice.Pages;
+
+import com.automationPractice.tools.CentralDriver;
+import org.junit.jupiter.api.Assertions;
+import org.openqa.selenium.*;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Wait;
+
+import java.util.List;
+import java.util.Random;
+
+public class ResultPage extends CentralDriver {
+
+    String productNameExpected = "", priceProductExpected = "";
+
+    public ResultPage (WebDriver driver, Wait wait, JavascriptExecutor js) {
+        super(driver, wait, js);
+    }
+
+    public ResultPage () {
+    }
+
+    List<WebElement> totalResult;
+
+    public void assertionTotalItemFound() {
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span.heading-counter")));
+
+        totalResult = driver.findElements(
+                By.cssSelector("div.center_column ul[class='product_list grid row'] li div[class='product-container']"));
+
+        By totalItemFoundBy = By.cssSelector("span.heading-counter");
+        String textTotalItemFound = driver.findElement(totalItemFoundBy).getText();
+
+        System.out.println("El valor de 'textTotalItemFound' es: " + textTotalItemFound);
+        System.out.println("El total de items encontrados son: " + totalResult.size());
+
+        if (totalResult.size() == 1) {
+            //1 result has been found.
+            Assertions.assertEquals("1 result has been found.", textTotalItemFound, "Los valores obtenidos son distintos...");
+        } else {
+            //7 results have been found.
+            Assertions.assertEquals(totalResult.size() + " results have been found.", textTotalItemFound, "Los valores obtenidos son distintos...");
+        }
+    }
+
+    public void selectAnItem (boolean itemWithStock) {
+        String productAvailable = "", productNameSelected = "", priceProductSelected = ""; // Todo: v1.1
+        int contador = 0; // Todo: v1.1
+        boolean flagProductWithoutStock = true; // Todo: v1.1
+
+        By productNameSelectedBy = By.cssSelector("div[class='right-block'] h5 a"); // Todo: v1.1
+        By priceProductSelectedBy = By.cssSelector("div[class='right-block'] div[class='content_price'] span[class='price product-price']"); // Todo: v1.1
+
+        Random rand = new Random();
+        WebElement randomItem = null; // Todo: v1.1
+
+        if (itemWithStock) { // True = Busca y encuentra un producto con Stock -- False = Selecciona el primer producto que encuentre // Todo: v1.1
+            while (flagProductWithoutStock) {  // Todo: v1.1
+                System.out.println("============================");
+                randomItem = totalResult.get(rand.nextInt(totalResult.size()));
+                productAvailable = randomItem.findElement(By.cssSelector("span[class='availability'] span")).getText();
+                productNameSelected = randomItem.findElement(productNameSelectedBy).getText();
+                priceProductSelected = randomItem.findElement(priceProductSelectedBy).getText();
+
+                System.out.println("Producto seleccionado por Random: '" + productNameSelected + "'. El precio es de: " + priceProductSelected);
+                flagProductWithoutStock = productAvailable.equals("Out of stock");
+
+                if (flagProductWithoutStock) {
+                    System.out.println("Producto sin stock. 'Product Available': " + productAvailable);
+                } else {
+                    System.out.println("Producto con stock. 'Product Available': " + productAvailable);
+                    System.out.println("============================");
+                    System.out.println("Se seleccionará este producto. Detalles:");
+                }
+
+                if (flagProductWithoutStock) contador++; else contador = 1;
+
+                if (contador == totalResult.size()) { // Finalizar el ciclo, en caso de no contar con Stock
+                    Assertions.assertFalse(true, "Los productos seleccionados por Random no tienen inventario...");
+                } else if (flagProductWithoutStock) {
+                    System.out.println("Intentos: " + contador);
+                    System.out.println("Intentos restantes: " + (totalResult.size() - contador));
+                }
+            }
+        } else {
+            randomItem = totalResult.get(rand.nextInt(totalResult.size()));
+            productNameSelected = randomItem.findElement(productNameSelectedBy).getText();
+            priceProductSelected = randomItem.findElement(priceProductSelectedBy).getText();
+        }
+
+        productNameExpected = productNameSelected;
+        priceProductExpected = priceProductSelected; // Todo: v1.1
+
+        System.out.println("Nombre del producto: " + productNameSelected); // Todo: v1.1
+        System.out.println("Precio: " + priceProductSelected); // Todo: v1.1
+        System.out.println("============================"); // Todo: v1.1
+
+        point = randomItem.getLocation();
+        js.executeScript("scrollBy(" + point.getX()  + ", " + point.getY() + ")");
+
+        randomItem.findElement(productNameSelectedBy).click();
+    }
+
+    public String getProductNameExpected() {
+        return productNameExpected;
+    }
+
+    public String getPriceProductExpected() {
+        return priceProductExpected;
+    }
+}

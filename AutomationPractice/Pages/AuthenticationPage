@@ -1,0 +1,28 @@
+package com.automationPractice.Pages;
+
+import com.automationPractice.tools.AuthenticationCredencialAccess;
+import com.automationPractice.tools.CentralDriver;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Point;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Wait;
+
+public class AuthenticationPage extends CentralDriver {
+
+    public AuthenticationPage (WebDriver driver, Wait wait, Point point, JavascriptExecutor js) {
+        super(driver, wait, point, js);
+    }
+
+    public void authenticationProcess () {
+        AuthenticationCredencialAccess accessAuth = new AuthenticationCredencialAccess();
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("h1.page-heading")));
+        js.executeScript("scrollBy(0, 400)");
+        driver.findElement(By.id("email")).sendKeys(accessAuth.getEmailAdress());
+        driver.findElement(By.name("passwd")).sendKeys(accessAuth.getPassword());
+        point = driver.findElement(By.cssSelector("h1.page-heading")).getLocation();
+        js.executeScript("scrollBy(0, " + point.getY() + ")");
+        driver.findElement(By.xpath("//button[@class='button btn btn-default button-medium']")).click();
+    }
+}

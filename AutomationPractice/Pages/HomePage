@@ -1,0 +1,25 @@
+package com.automationPractice.Pages;
+
+import com.automationPractice.tools.CentralDriver;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Wait;
+
+public class HomePage extends CentralDriver {
+
+    public HomePage(WebDriver driver, Wait wait) {
+        super(driver, wait);
+    }
+
+    public void findItem (String itemToFind) {
+        By searchBoxBy = By.cssSelector("input#search_query_top");
+        wait.until(ExpectedConditions.presenceOfElementLocated(searchBoxBy));
+        driver.findElement(searchBoxBy).sendKeys(itemToFind);
+        driver.findElement(By.cssSelector("button[name='submit_search']")).click();
+    }
+
+    public void singIn () {
+        driver.findElement(By.className("login")).click();
+    }
+}
