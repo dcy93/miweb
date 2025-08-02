@@ -1,0 +1,28 @@
+Que tal.
+
+Antes de cargar el proyecto
+1. Es necesario descomprimir el contenido del archivo ZIP (la contraseña fue compartida vía correo electrónico)
+2. Se debe de indicar la ruta deseada del proyecto (Recuerda la ruta de donde se hizo la descompresión. Lo utilizaremos más adelante)
+3. Es necesario contar con la versión 17 del JDK de Java. Considera también que el proyecto se encuentra construido en Gradle,
+con la herramienta IntelliJ.
+
+Para la carga del proyecto
+1. En IntelliJ, seleccionamos la siguiente opción: File > Open
+2. En la ventana emergente, indicamos la carpeta de donde descomprimimos el proyecto. Una vez seleccionada la carpeta, presionamos el botón "Select Folder".
+3. Una vez cargado el proyecto, corrobora que, el archivo "build.gradle" cuente con las siguientes dependencias:
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    implementation "org.seleniumhq.selenium:selenium-java:3.141.59"
+4. Con todo lo anterior, el proyecto debe estar listo para su ejecución.
+5. El TC de ejecución se encuentra en la ruta de proyecto:
+    GlobalHITSS ----> src > test > java > com.hitss > TakeHomeChallenge.java
+    <Nombre Carpeta>                      <paquete>
+
+
+Consideraciones antes de la ejecución
+1. Es probable que, al momento de abrir la clase (TakeHomeChallenge), muestre una notificación sobre que JDK se debe de ejecutar.
+El proyecto se desarrolló sobre la versión JDK 17, por lo que se debe de seleccionar dicha versión.
+
+2. Antes de ejecutar la prueba, corrobora que la ruta/path del driver sea la correcta. 
+Copia la ruta (click derecho en el driver > Copy Path/Reference > Absolute Path) y sustituye el contenido de la línea 25 del código
+que se encuentra entre las dobles comillas, por la ruta que copiaste previamente.
